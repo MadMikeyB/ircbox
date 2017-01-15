@@ -1,14 +1,20 @@
 $(function() {
 
     $('#connect').click(function(e) {
-        if ( $('#nick').val().length === 0 ) {
+        if ( $('#nick').val().length === 0 ) 
+        {
         	alert('Please enter a nickname!!');
-        }
+        } 
+        else if ( $('#chan').val().length === 0 )
+    	{
+    		alert('Please enter a channel');
+    	}
         else
         {
         	connect();
 	        $(this).hide();
 	        $('#nick').fadeOut().addClass('hide');
+	        $('#chan').fadeOut().addClass('hide');
         	$('.ircoutput').fadeIn().removeClass('hide');
         }
     });
@@ -33,12 +39,12 @@ $(function() {
 
     function open(event) {
         console.log('onopen called');
-        $('#title').append('<p><strong style="color: #00CD00">CONNECTED</strong></p>');
+        $('#title').append('<p><strong style="color: #00CD00">CONNECTED</strong>: aurora.irc.arloria.net '+ $('#chan').val() +'</p>');
         $('#output ul').append('<li class="list-group-item">You have connected to aurora.irc.arloria.net</li>');
-        $('#output ul').append('<li class="list-group-item">You are connected as [IRCBOX]_' + $('#nick').val() + '</li>');
-        $('#output ul').append('<li class="list-group-item">You are speaking on #filesnation</li>');
+        $('#output ul').append('<li class="list-group-item">You are connected as [fn]_' + $('#nick').val() + '</li>');
+        $('#output ul').append('<li class="list-group-item">You are speaking on '+$('#chan').val()+'</li>');
         websocket.send('USER iamdevloper * * :WebSocket User\n');
-        websocket.send('NICK [IRCBOX]_'+$('#nick').val()+'\n');
+        websocket.send('NICK [fn]_'+$('#nick').val()+'\n');
     }
 
     function close(event) {
@@ -85,13 +91,13 @@ $(function() {
         }
         else if ((cmd == '376') || (cmd == '422'))
         {
-            websocket.send('JOIN #tiramisu\n'); // @todo var chan
+            websocket.send('JOIN '+$('#chan').val()+'\n'); // @todo var chan
         }
         else if ( cmd == '433' )
         {
-            websocket.send('NICK [IRCBOX]_'+$('#nick').val()+'_'+Math.floor((Math.random() * 1000) + 1).toString()+'\n' );
+            websocket.send('NICK [fn]_'+$('#nick').val()+'_'+Math.floor((Math.random() * 1000) + 1).toString()+'\n' );
         }
-        else if ( (cmd == 'PRIVMSG') && (target == '#tiramisu') )
+        else if ( (cmd == 'PRIVMSG') && (target == $('#chan').val() ) )
         {
             $('#output ul').append('<li class="list-group-item">&lt;'+srcnick+'&gt;: '+rest+'</li>');
         }
@@ -103,8 +109,8 @@ $(function() {
     }
 
     function sendMessage(privmsg) {
-        websocket.send('PRIVMSG #tiramisu ' + privmsg + '\n'); 
-        $('#output ul').append('<li class="list-group-item">&lt;[IRCBOX]_mikey&gt;: '+privmsg+'</li>');
+        websocket.send('PRIVMSG '+ $('#chan').val() +' '+ privmsg + '\n'); 
+        $('#output ul').append('<li class="list-group-item">&lt;[fn]_'+$('#nick').val()+'&gt;: '+privmsg+'</li>');
     }
 
     function handleBinaryInput(event) {
