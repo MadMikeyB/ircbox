@@ -35,10 +35,10 @@ $(function() {
         console.log('onopen called');
         $('#title').append('<p><strong style="color: #00CD00">CONNECTED</strong></p>');
         $('#output ul').append('<li class="list-group-item">You have connected to aurora.irc.arloria.net</li>');
-        $('#output ul').append('<li class="list-group-item">You are connected as' + $('#nick').val() + '</li>');
+        $('#output ul').append('<li class="list-group-item">You are connected as [IRCBOX]_' + $('#nick').val() + '</li>');
         $('#output ul').append('<li class="list-group-item">You are speaking on #filesnation</li>');
         websocket.send('USER iamdevloper * * :WebSocket User\n');
-        websocket.send('NICK [fn]_'+$('#nick').val()+'\n');
+        websocket.send('NICK [IRCBOX]_'+$('#nick').val()+'\n');
     }
 
     function close(event) {
@@ -89,7 +89,7 @@ $(function() {
         }
         else if ( cmd == '433' )
         {
-            websocket.send('NICK [fn]_'+$('#nick').val()+'_'+Math.floor((Math.random() * 1000) + 1).toString()+'\n' );
+            websocket.send('NICK [IRCBOX]_'+$('#nick').val()+'_'+Math.floor((Math.random() * 1000) + 1).toString()+'\n' );
         }
         else if ( (cmd == 'PRIVMSG') && (target == '#tiramisu') )
         {
@@ -104,7 +104,7 @@ $(function() {
 
     function sendMessage(privmsg) {
         websocket.send('PRIVMSG #tiramisu ' + privmsg + '\n'); 
-        $('#output ul').append('<li class="list-group-item">&lt;[fn]_mikey&gt;: '+privmsg+'</li>');
+        $('#output ul').append('<li class="list-group-item">&lt;[IRCBOX]_mikey&gt;: '+privmsg+'</li>');
     }
 
     function handleBinaryInput(event) {
