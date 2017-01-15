@@ -1,11 +1,16 @@
 $(function() {
 
-    $('#connect').click(function() {
-        connect();
-        $(this).hide();
-        $('.ircoutput').fadeIn().removeClass('hide');
-        var output = document.getElementById("output");
-        output.scrollTop = output.scrollHeight;
+    $('#connect').click(function(e) {
+        if ( $('#nick').val().length === 0 ) {
+        	alert('Please enter a nickname!!');
+        }
+        else
+        {
+        	connect();
+	        $(this).hide();
+	        $('#nick').fadeOut().addClass('hide');
+        	$('.ircoutput').fadeIn().removeClass('hide');
+        }
     });
 
     $("#input").on('keyup', function (e) {
@@ -29,8 +34,11 @@ $(function() {
     function open(event) {
         console.log('onopen called');
         $('#title').append('<p><strong style="color: #00CD00">CONNECTED</strong></p>');
+        $('#output ul').append('<li class="list-group-item">You have connected to aurora.irc.arloria.net</li>');
+        $('#output ul').append('<li class="list-group-item">You are connected as' + $('#nick').val() + '</li>');
+        $('#output ul').append('<li class="list-group-item">You are speaking on #filesnation</li>');
         websocket.send('USER iamdevloper * * :WebSocket User\n');
-        websocket.send('NICK [fn]_mikey\n'); // @todo var nick
+        websocket.send('NICK [fn]_'+$('#nick').val()+'\n');
     }
 
     function close(event) {
@@ -81,12 +89,11 @@ $(function() {
         }
         else if ( cmd == '433' )
         {
-            websocket.send('NICK [fn]_mikey_'+Math.floor((Math.random() * 1000) + 1).toString()+'\n' );
+            websocket.send('NICK [fn]_'+$('#nick').val()+'_'+Math.floor((Math.random() * 1000) + 1).toString()+'\n' );
         }
         else if ( (cmd == 'PRIVMSG') && (target == '#tiramisu') )
         {
             $('#output ul').append('<li class="list-group-item">&lt;'+srcnick+'&gt;: '+rest+'</li>');
-            // document.getElementById('output').innerHTML += srcnick+': '+rest+'<br />';
         }
         
         if ( msgsplit[0] == 'ERROR ')
@@ -105,6 +112,4 @@ $(function() {
         var raw = fileReader.result;
         process(raw);
     }
-
-
 });
