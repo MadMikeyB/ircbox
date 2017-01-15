@@ -4,6 +4,16 @@ $(function() {
         connect();
         $(this).hide();
         $('.ircoutput').fadeIn().removeClass('hide');
+        var output = document.getElementById("output");
+        output.scrollTop = output.scrollHeight;
+    });
+
+    $("#input").on('keyup', function (e) {
+        var privmsg = $(this).val();
+        if (e.keyCode == 13) {
+            sendMessage(privmsg);
+            $(this).val('');
+        }
     });
 
     function connect() {
@@ -18,28 +28,26 @@ $(function() {
 
     function open(event) {
         console.log('onopen called');
-        console.log(event);
-        $('#output').append('<p><strong style="color: #00CD00">CONNECTED</strong></p>');
+        $('#title').append('<p><strong style="color: #00CD00">CONNECTED</strong></p>');
         websocket.send('USER iamdevloper * * :WebSocket User\n');
         websocket.send('NICK [fn]_mikey\n'); // @todo var nick
     }
 
     function close(event) {
         console.log('onclose called');
-        $('#output').append('<p><strong style="color: #fca000">DISCONNECTED</strong></p>');
+        $('#title').append('<p><strong style="color: #fca000">DISCONNECTED</strong></p>');
         console.log('connection closed');
     }
 
     function error(event) {
         console.log('onerror called');
-        $('#output').append('<p><strong style="color: #CD0000">ERROR!!!</strong></p>');
+        $('#title').append('<p><strong style="color: #CD0000">ERROR!!!</strong></p>');
 
         console.log(event); 
     }
 
     function message(event) {
         console.log('onmessage called');
-        console.log(event);
         rawData = event.data;
         if (rawData instanceof Blob)
         {
@@ -77,8 +85,19 @@ $(function() {
         }
         else if ( (cmd == 'PRIVMSG') && (target == '#tiramisu') )
         {
-            document.getElementById('output').innerHTML += srcnick+': '+rest+'<br />';
+            $('#output ul').append('<li class="list-group-item">&lt;'+srcnick+'&gt;: '+rest+'</li>');
+            // document.getElementById('output').innerHTML += srcnick+': '+rest+'<br />';
         }
+        
+        if ( msgsplit[0] == 'ERROR ')
+        {
+            $('#output').append('<p><strong style="color: #CD0000">'+msgsplit+'</strong></p>');
+        }
+    }
+
+    function sendMessage(privmsg) {
+        websocket.send('PRIVMSG #tiramisu ' + privmsg + '\n'); 
+        $('#output ul').append('<li class="list-group-item">&lt;[fn]_mikey&gt;: '+privmsg+'</li>');
     }
 
     function handleBinaryInput(event) {
@@ -86,4 +105,6 @@ $(function() {
         var raw = fileReader.result;
         process(raw);
     }
+
+
 });
