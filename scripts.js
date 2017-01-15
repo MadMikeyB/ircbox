@@ -42,6 +42,7 @@ $(function() {
               cmd = msgsplit2[1];
               target = msgsplit2[2];
               srcnick = msgsplit2[0].split("!")[0];
+              rest = message.slice(message.indexOf(':',1)+1,-1);
               if (message.indexOf('PING') == 0)
               {
                   pongResponse = message.replace('PING','PONG');
@@ -58,7 +59,7 @@ $(function() {
               }
               else if ( (cmd == 'PRIVMSG') && (target == '#tiramisu') )
               {
-                document.getElementById('output').innerHTML += srcnick+': '+msgsplit[2]+'<br />';
+                document.getElementById('output').innerHTML += srcnick+': '+rest+'<br />';
               }
             }
             websocket.onclose = function(event) {
