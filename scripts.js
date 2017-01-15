@@ -38,7 +38,10 @@ $(function() {
             function process(message) {
               console.log(message);
               msgsplit = message.split(":");
-              cmd = msgsplit[1].split(" ")[1];
+              msgsplit2 = msgsplit[1].split(" ");
+              cmd = msgsplit2[1];
+              target = msgsplit2[2];
+              srcnick = msgsplit2[0].split("!")[0];
               if (message.indexOf('PING') == 0)
               {
                   pongResponse = message.replace('PING','PONG');
@@ -49,8 +52,13 @@ $(function() {
               {
                   websocket.send('JOIN #tiramisu\n'); // @todo var chan
               }
-              else if ( cmd == '433' ) {
+              else if ( cmd == '433' )
+              {
                   websocket.send('NICK [fn]_mikey_'+Math.floor((Math.random() * 1000) + 1).toString()+'\n' );
+              }
+              else if ( (cmd == 'PRIVMSG') && (target == '#tiramisu') )
+              {
+                document.getElementById('output').innerHTML += srcnick+': '+msgsplit[2]+'<br />';
               }
             }
             websocket.onclose = function(event) {
