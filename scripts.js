@@ -40,9 +40,9 @@ $(function() {
     function open(event) {
         console.log('onopen called');
         $('#title').append('<p><strong style="color: #00CD00">CONNECTED</strong>: aurora.irc.arloria.net '+ $('#chan').val() +'</p>');
-        $('#output ul').append('<li class="list-group-item">You have connected to aurora.irc.arloria.net</li>');
-        $('#output ul').append('<li class="list-group-item">You are connected as [fn]_' + $('#nick').val() + '</li>');
-        $('#output ul').append('<li class="list-group-item">You are speaking on '+$('#chan').val()+'</li>');
+        $('#output ul').append('<li class="list-group-item">You have connected to aurora.irc.arloria.net // '+$('#chan').val()+' // speaking as [fn]_' + $('#nick').val() + '</li>');
+        // $('#output ul').append('<li class="list-group-item">You are connected as [fn]_' + $('#nick').val() + '</li>');
+        // $('#output ul').append('<li class="list-group-item">You are speaking on '+$('#chan').val()+'</li>');
         websocket.send('USER iamdevloper * * :WebSocket User\n');
         websocket.send('NICK [fn]_'+$('#nick').val()+'\n');
     }
@@ -76,13 +76,21 @@ $(function() {
     }
 
     function process(message) {
-        console.log(message);
+        console.log('message: ' + message);
         msgsplit = message.split(":");
+        console.log('msgsplit: ' + msgsplit);
         msgsplit2 = msgsplit[1].split(" ");
+        console.log('msgsplit2: ' + msgsplit2);
         cmd = msgsplit2[1];
+        console.log('cmd: ' + cmd);
         target = msgsplit2[2];
+        console.log('target: ' + target);
         srcnick = msgsplit2[0].split("!")[0];
+		console.log('srcnick: ' + srcnick);
         rest = message.slice(message.indexOf(':',1)+1,-1);
+        console.log('rest: ' + rest);
+		var now = new Date().toLocaleTimeString();
+
         if (message.indexOf('PING') == 0)
         {
             pongResponse = message.replace('PING','PONG');
@@ -91,7 +99,11 @@ $(function() {
         }
         else if ((cmd == '376') || (cmd == '422'))
         {
-            websocket.send('JOIN '+$('#chan').val()+'\n'); // @todo var chan
+            websocket.send('JOIN '+$('#chan').val()+'\n');
+        }
+        else if ( cmd == '332' ) 
+        {
+        	$('#output ul').append('<li class="list-group-item"><strong>Channel Topic:</strong> '+ escapeHtml(rest) +'</li>');
         }
         else if ( cmd == '433' )
         {
@@ -99,7 +111,7 @@ $(function() {
         }
         else if ( (cmd == 'PRIVMSG') && (target == $('#chan').val() ) )
         {
-            $('#output ul').append('<li class="list-group-item">&lt;'+srcnick+'&gt;: '+rest+'</li>');
+            $('#output ul').append('<li class="list-group-item"><strong>['+now+'] &lt;'+srcnick+'&gt;</strong> '+escapeHtml(rest)+'</li>');
         }
         
         if ( msgsplit[0] == 'ERROR ')
@@ -109,8 +121,9 @@ $(function() {
     }
 
     function sendMessage(privmsg) {
+		var now = new Date().toLocaleTimeString();
         websocket.send('PRIVMSG '+ $('#chan').val() +' '+ privmsg + '\n'); 
-        $('#output ul').append('<li class="list-group-item">&lt;[fn]_'+$('#nick').val()+'&gt;: '+privmsg+'</li>');
+        $('#output ul').append('<li class="list-group-item"><strong>['+now+'] &lt;'+$('#nick').val()+'&gt;</strong> '+escapeHtml(privmsg)+'</li>');
     }
 
     function handleBinaryInput(event) {
@@ -118,4 +131,13 @@ $(function() {
         var raw = fileReader.result;
         process(raw);
     }
+
+	function escapeHtml(unsafe) {
+	    return unsafe
+	         .replace(/&/g, "&amp;")
+	         .replace(/</g, "&lt;")
+	         .replace(/>/g, "&gt;")
+	         .replace(/"/g, "&quot;")
+	         .replace(/'/g, "&#039;");
+	 }
 });
